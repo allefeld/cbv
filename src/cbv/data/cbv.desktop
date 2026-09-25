@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=cbv
+GenericName=Comic Book Viewer
+Comment=Clutter-free comic book viewer
+Exec=@EXEC@ %f
+Icon=cbv
+Terminal=false
+Categories=Graphics;Viewer;Qt;
+MimeType=application/vnd.comicbook+zip;application/vnd.comicbook-rar;application/x-cbz;application/x-cbr;application/x-cb7;application/x-cbt;
+StartupWMClass=cbv
