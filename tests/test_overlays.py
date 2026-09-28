@@ -250,3 +250,97 @@ def test_info_description_keeps_basic_formatting(qapp, viewer, tmp_path, make_zi
     assert "<script" not in html and "x()" not in html
     QTest.keyClick(viewer, Qt.Key.Key_PageUp)
     assert "font-style:italic" in viewer._overlay.browser.toHtml()
+
+
+def test_cell_layout_never_overlaps_caption_and_thumbnail():
+    from PyQt6.QtCore import QRect, QSize
+
+    from cbv.ui.gallery import _CELL_HEIGHT, _CELL_MIN_WIDTH, _THUMB, cell_layout
+
+    cell = QRect(50, 300, 260, _CELL_HEIGHT)
+    baselines = set()
+    sizes = [(200, 280), (200, 100), (60, 280), (200, 200), (1, 1), (900, 300), (150, 4000), (0, 0)]
+    for w, h in sizes:
+        thumb, caption = cell_layout(cell, QSize(w, h))
+        assert not thumb.intersects(caption), (w, h)
+        assert cell.contains(caption) and (thumb.isEmpty() or cell.contains(thumb)), (w, h)
+        assert thumb.width() <= _THUMB.width() and thumb.height() <= _THUMB.height()
+        assert thumb.bottom() < caption.top()  # the number is below the thumbnail
+        baselines.add((caption.top(), caption.height()))
+        if not thumb.isEmpty():  # thumbnails are aligned to the box bottom, centred horizontally
+            assert thumb.bottom() == cell.y() + 8 + _THUMB.height() - 1
+            assert abs((thumb.center().x() - cell.center().x())) <= 1
+    assert len(baselines) == 1  # captions are on one line whatever the page sizes
+    assert _CELL_MIN_WIDTH >= _THUMB.width()
+
+
+def test_gallery_with_mixed_page_sizes_has_uniform_cells(qapp, viewer, make_zip):  # noqa: F811
+    pages = {
+        "1.png": png_bytes((200, 300)), "2.png": png_bytes((600, 200)),
+        "3.png": png_bytes((100, 500)), "4.png": png_bytes((300, 300)),
+    }  # fmt: skip
+    open_and_show(qapp, viewer, make_zip("mixed", pages), 900, 700)
+    QTest.keyClick(viewer, Qt.Key.Key_PageDown)
+    g = viewer._overlay
+    assert pump(qapp, lambda: all(viewer.pipeline.thumbnail(i) is not None for i in range(4)))
+    qapp.processEvents()
+    rects = [g.list.visualItemRect(g.list.item(i)) for i in range(4)]
+    assert len({r.height() for r in rects}) == 1  # every cell has the same height
+    row = g.list.gridSize().height()
+    cols = g._columns
+    assert [r.top() for r in rects] == [(i // cols) * row for i in range(4)]  # a regular grid
+
+
+def scroll_wheel(widget, delta: int) -> None:
+    from PyQt6.QtCore import QPoint, QPointF
+    from PyQt6.QtGui import QWheelEvent
+    from PyQt6.QtWidgets import QApplication
+
+    pos = QPointF(widget.rect().center())
+    QApplication.sendEvent(
+        widget,
+        QWheelEvent(
+            pos, pos, QPoint(), QPoint(0, delta), Qt.MouseButton.NoButton,
+            Qt.KeyboardModifier.NoModifier, Qt.ScrollPhase.NoScrollPhase, False,
+        ),
+    )  # fmt: skip
+
+
+def test_gallery_wheel_notch_scrolls_exactly_one_row(qapp, viewer, make_zip):  # noqa: F811
+    path = make_zip("many", {f"{i:02d}.png": png_bytes((200, 300)) for i in range(1, 81)})
+    open_and_show(qapp, viewer, path, 1100, 500)
+    QTest.keyClick(viewer, Qt.Key.Key_PageDown)
+    g = viewer._overlay
+    bar, view = g.list.verticalScrollBar(), g.list.viewport()
+    row = g.list.gridSize().height()
+    assert bar.maximum() > 3 * row
+    bar.setValue(0)
+    scroll_wheel(view, -120)  # wheel down
+    assert bar.value() == row
+    scroll_wheel(view, -120)
+    scroll_wheel(view, -120)
+    assert bar.value() == 3 * row
+    scroll_wheel(view, 120)  # wheel up
+    assert bar.value() == 2 * row
+    for _ in range(5):
+        scroll_wheel(view, 120)
+    assert bar.value() == 0  # clamps at the top
+    for _ in range(200):
+        scroll_wheel(view, -120)
+    assert bar.value() == bar.maximum()  # ...and at the bottom
+
+
+def test_gallery_wheel_snaps_to_rows_and_accumulates_touchpad_deltas(qapp, viewer, make_zip):  # noqa: F811
+    path = make_zip("many", {f"{i:02d}.png": png_bytes((200, 300)) for i in range(1, 81)})
+    open_and_show(qapp, viewer, path, 1100, 500)
+    QTest.keyClick(viewer, Qt.Key.Key_PageDown)
+    g = viewer._overlay
+    bar, view = g.list.verticalScrollBar(), g.list.viewport()
+    row = g.list.gridSize().height()
+    bar.setValue(row + 37)  # mid-row, e.g. after keyboard navigation
+    scroll_wheel(view, -120)
+    assert bar.value() == 2 * row  # snaps to a whole row
+    bar.setValue(0)
+    for _ in range(3):
+        scroll_wheel(view, -40)  # three small touchpad ticks make one notch
+    assert bar.value() == row

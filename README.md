@@ -103,7 +103,7 @@ ComicInfo bookmarks, a *Contents* list follows; click an entry to jump to that p
 **Gallery** (`PgDn`). Every page as a thumbnail, filling the window (thumbnails appear as they are
 made). The highlight starts on the current page and moves with `Space`, `Shift+Space`, `Backspace`,
 `←`, `→`, `↑`, `↓` (a row), `Home`, `End`. `Enter` or a click opens that page; `Esc` closes the
-gallery and stays on the current page. The grid always runs left to right, also for right-to-left books.
+gallery and stays on the current page. The mouse wheel scrolls one row of thumbnails per notch. The grid always runs left to right, also for right-to-left books.
 
 `PgUp` and `PgDn` also switch directly from one screen to the other; pressing the same key again closes it.
 

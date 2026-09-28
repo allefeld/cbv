@@ -120,7 +120,7 @@ class RenderPipeline(QObject):
         self._generation = 0
         self.signals = _Signals(self)
         self.signals.scaled.connect(self._on_scaled)
-        self.signals.probed.connect(lambda _page: self.sizes_changed.emit())
+        self.signals.probed.connect(self._on_probed)
         self.signals.full.connect(self._on_full)
         self.signals.thumb.connect(self._on_thumb)
         self._pool = QThreadPool(self)
@@ -139,6 +139,12 @@ class RenderPipeline(QObject):
         self._full: OrderedDict[int, QImage] = OrderedDict()
         self._full_pending: set[int] = set()
         self._probing: set[int] = set()
+
+    def _on_probed(self, _page: int) -> None:
+        # A bound method (not a lambda): Qt drops queued deliveries to a receiver that has
+        # been deleted, so signals still in flight when a book is closed are harmless.
+        if not self.closed:
+            self.sizes_changed.emit()
 
     # -- sizes -----------------------------------------------------------
     def start_size_scan(self, first: int) -> None:

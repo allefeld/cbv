@@ -46,6 +46,12 @@ missing. There is no linter configured.
 - **Worker threads must never touch widgets or the pipeline's caches**; they emit signals and the main
   thread updates the cache (`RenderPipeline._on_scaled`). Keep `_cache_bytes` equal to the real sum: a
   drifting counter once evicted the pages on screen (regression tests in `tests/test_pipeline.py`).
+- **Connect signals that worker threads emit to bound methods of a QObject, never to lambdas.** Queued
+  signals outlive `RenderPipeline.close()`; Qt drops them for a deleted receiver, but a lambda ran on the
+  deleted pipeline and segfaulted (regression test in `tests/test_pipeline.py`).
+- **The gallery draws its own cells** (`gallery.cell_layout` + `_ThumbDelegate`): Qt's icon/text layout
+  misplaced captions for pages of different sizes. Thumbnails are bottom-aligned in a fixed box; the
+  wheel scrolls whole rows.
 - **Shortcuts are `QAction`s** with window scope. While an overlay is open, the navigation actions are
   disabled so keys reach it; the Info overlay disables *all* actions except `PgUp`/`PgDn` so that any
   other key closes it (`Overlay.captures_all_keys`).

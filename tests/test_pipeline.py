@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import tempfile
+from pathlib import Path
+
 import pytest
 from PyQt6.QtGui import QImage
 
@@ -76,3 +79,23 @@ def test_pil_to_qimage_colours_and_format():
     assert q.format() == QImage.Format.Format_RGB32 and (q.width(), q.height()) == (3, 2)
     assert q.pixelColor(0, 0).getRgb()[:3] == (10, 20, 30)
     assert q.pixelColor(2, 1).getRgb()[:3] == (200, 100, 50)
+
+
+def test_closing_a_book_with_signals_in_flight_does_not_crash(qapp, make_zip):
+    """Regression: a lambda slot on the pipeline's `probed` signal ran after the pipeline had
+    been deleted (queued signals outlive close()) and crashed the process."""
+    from PyQt6.QtCore import QCoreApplication, QEvent
+
+    from cbv.state import StateStore
+    from cbv.ui.viewer import Viewer
+
+    path = make_zip("many", {f"{i:02d}.png": png_bytes((60, 90)) for i in range(1, 30)})
+    for _ in range(25):
+        viewer = Viewer(StateStore(Path(tempfile.mkdtemp()) / "s.json"))
+        viewer.resize(500, 700)
+        assert viewer.open_path(path)
+        viewer.show()
+        qapp.processEvents()  # let probe results start arriving
+        viewer.close()  # closes the book while more are queued
+        QCoreApplication.sendPostedEvents(None, QEvent.Type.DeferredDelete)
+        qapp.processEvents()
