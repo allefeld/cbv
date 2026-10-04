@@ -235,15 +235,13 @@ def test_gallery_navigation_scrolls_current_item_into_view(qapp, viewer, make_zi
 def test_info_description_keeps_basic_formatting(qapp, viewer, tmp_path, make_zip):  # noqa: F811
     from cbv.ui.info_overlay import info_html
 
-    opf = (
-        b"<?xml version='1.0'?><package xmlns='http://www.idpf.org/2007/opf' version='2.0'>"
-        b"<metadata xmlns:dc='http://purl.org/dc/elements/1.1/'><dc:title>T</dc:title>"
-        b"<dc:description>&lt;p&gt;An &lt;i&gt;odd&lt;/i&gt; tale&lt;/p&gt;"
-        b"&lt;script&gt;x()&lt;/script&gt;&lt;p&gt;2nd &amp;amp; last&lt;/p&gt;</dc:description>"
-        b"</metadata></package>"
+    ci = (
+        b"<?xml version='1.0'?><ComicInfo><Title>T</Title>"
+        b"<Summary>&lt;p&gt;An &lt;i&gt;odd&lt;/i&gt; tale&lt;/p&gt;"
+        b"&lt;script&gt;x()&lt;/script&gt;&lt;p&gt;2nd &amp;amp; last&lt;/p&gt;</Summary>"
+        b"</ComicInfo>"
     )
-    (tmp_path / "metadata.opf").write_bytes(opf)
-    path = make_zip("d", {"1.png": png_bytes()})
+    path = make_zip("d", {"ComicInfo.xml": ci, "1.png": png_bytes()})
     open_and_show(qapp, viewer, path, 500, 900)
     html = info_html(viewer.book)
     assert "<p>An <i>odd</i> tale</p><p>2nd &amp; last</p>" in html
@@ -344,3 +342,4 @@ def test_gallery_wheel_snaps_to_rows_and_accumulates_touchpad_deltas(qapp, viewe
     for _ in range(3):
         scroll_wheel(view, -40)  # three small touchpad ticks make one notch
     assert bar.value() == row
+

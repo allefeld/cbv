@@ -35,9 +35,6 @@ class Metadata:
     # Reading hints
     manga_rtl: bool | None = None
     pages: list[PageInfo] = field(default_factory=list)
-    # Identity / source
-    uuid: str | None = None
-    cover_path: str | None = None
 
     @property
     def bookmarks(self) -> list[PageInfo]:

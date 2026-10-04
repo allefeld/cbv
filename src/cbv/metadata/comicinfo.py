@@ -7,6 +7,7 @@ import logging
 from xml.etree import ElementTree as ET
 
 from .model import Metadata, PageInfo
+from .richtext import sanitize_html
 
 log = logging.getLogger(__name__)
 
@@ -103,6 +104,7 @@ def parse_comicinfo(data: bytes) -> Metadata | None:
         )
 
     tags = _split(fields.get("Tags")) or _split(fields.get("Genre"))
+    summary = fields.get("Summary")
     return Metadata(
         title=fields.get("Title"),
         series=fields.get("Series"),
@@ -114,7 +116,8 @@ def parse_comicinfo(data: bytes) -> Metadata | None:
         publisher=fields.get("Publisher"),
         date=date,
         language=fields.get("LanguageISO"),
-        description=fields.get("Summary"),
+        description=summary,
+        description_html=sanitize_html(summary) or None if summary else None,
         tags=tags,
         manga_rtl=manga_rtl,
         pages=pages,

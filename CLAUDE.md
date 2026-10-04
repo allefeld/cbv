@@ -18,8 +18,9 @@ missing. There is no linter configured.
 
 - **No system packages.** Everything must come from PyPI wheels (installed via uv/pipx). That is why RAR
   uses `unrar2-cffi` (bundled UnRAR) rather than `rarfile`/`7z`/`unar`.
-- **No PDF support**, **no `metadata.db`**, metadata only from `metadata.opf` and `ComicInfo.xml`
-  (deliberately no CoMet/ACBF/ComicBookInfo).
+- **No PDF support**, **no `metadata.db`**, **no `metadata.opf` sidecars** — metadata comes only from an
+  embedded `ComicInfo.xml` (deliberately no CoMet/ACBF/ComicBookInfo either). Calibre exports ComicInfo
+  into the archive, so the file is self-contained.
 - **The default view has no chrome.** New features go behind keys, the right-click menu or overlays.
 - Fit-to-window scaling includes upscaling above 100%.
 
@@ -29,8 +30,8 @@ missing. There is no linter configured.
   ZIP/TAR stdlib, RAR via `unrar2-cffi`, 7z via `py7zr` (decompressed once into memory), folder.
 - `pages.py` – image filtering + natural sort (never trust stored order). `core/book.py` – `Book`: pages,
   metadata, lazily probed page sizes, small LRU of raw page bytes.
-- `metadata/` – `opf.py`, `comicinfo.py`, `merge.py` (OPF wins for descriptive fields; ComicInfo owns
-  reading hints), `richtext.py` (allow-list HTML sanitizer for descriptions), `model.py`.
+- `metadata/` – `comicinfo.py`, `merge.py` (ComicInfo.xml → `Metadata`, filename fallback),
+  `richtext.py` (allow-list HTML sanitizer for descriptions), `model.py`.
 - `render/layout.py` – **pure** pairing/fitting logic in device pixels (unit-tested, no Qt);
   `render/decode.py` – Pillow decode + Lanczos resize.
 - `ui/pipeline.py` – worker pools, scaled-image cache, full-res cache, thumbnails. `ui/viewer.py` – the

@@ -47,9 +47,7 @@ class Book:
 
     @property
     def state_key(self) -> str:
-        """Stable identity for remembered state: the Calibre uuid survives moves."""
-        if self.metadata.uuid:
-            return f"uuid:{self.metadata.uuid}"
+        """Identity for remembered state."""
         return f"path:{self.path}"
 
     def page_bytes(self, index: int) -> bytes:

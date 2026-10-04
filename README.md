@@ -7,8 +7,7 @@ Everything else (zoom bubble, information, thumbnail gallery) is available on re
   detected from the file's content, not its extension (a `.cbr` that is really a ZIP works).
   RAR 4 is tested; RAR 5 should work but is untested. No PDF support.
 - **Images:** JPEG, PNG, WebP, GIF, BMP, TIFF and AVIF (whatever the installed Pillow can decode).
-- **Metadata:** a Calibre `metadata.opf` next to the file (if present) and an embedded `ComicInfo.xml`
-  (see [Metadata](#metadata)).
+- **Metadata:** an embedded `ComicInfo.xml`, if present (see [Metadata](#metadata)).
 - **Linux only so far** (developed and tested on X11).
 
 ## Install
@@ -95,7 +94,7 @@ so fine detail is crisp.
   shorter side. There is no separate size setting.
 - `Esc` or a left click closes it (the click does nothing else). Turning a page also closes it.
 
-**Information screen** (`PgUp`). Cover (when there is a sidecar), title, series, authors, credits,
+**Information screen** (`PgUp`). Title, series, authors, credits,
 date, publisher, language, tags, page count, description, file name and folder. If the book has
 ComicInfo bookmarks, a *Contents* list follows; click an entry to jump to that page. Any key other than
 `PgUp`/`PgDn`, or a left click outside the links, returns to the page. The mouse wheel scrolls long text.
@@ -109,26 +108,22 @@ gallery and stays on the current page. The mouse wheel scrolls one row of thumbn
 
 ## Metadata
 
-Sources, in order of priority for the descriptive fields:
+The only metadata source is a **`ComicInfo.xml` inside the archive** (ComicRack/Anansi schema), as
+written by comic managers or exported from Calibre. It gives title, authors, credits, series and
+number, date, language, publisher, tags and description, plus the reading hints: right-to-left,
+double-page flags and bookmarks (page entries with a `Bookmark` attribute). Calibre `metadata.opf`
+sidecars are ignored, `metadata.db` is never read, and other metadata formats (ComicBookInfo, CoMet,
+ACBF, …) are not read. Without a `ComicInfo.xml`, the file name serves as the title.
 
-1. **Calibre sidecar:** `metadata.opf` in the same folder as the book (or `<book name>.opf` next to it).
-   Gives title, authors, series and number, date, language, publisher, tags, description, and the cover
-   file. Calibre's "no date" marker (`0101-01-01`) is ignored, and dates are shown as local calendar dates.
-2. **`ComicInfo.xml` inside the archive:** fills whatever the sidecar lacks, and is the only source of
-   reading hints: right-to-left, double-page flags and bookmarks. Bookmarks are page entries with a
-   `Bookmark` attribute. Other metadata formats (ComicBookInfo, CoMet, ACBF, …) are not read.
-3. **The file name** as a last resort for the title.
-
-`metadata.db` is never read. Descriptions keep basic formatting (bold, italic, underline, paragraphs,
-lists, quotes, line breaks); all other markup is reduced to its text.
+Descriptions keep basic formatting (bold, italic, underline, paragraphs, lists, quotes, line
+breaks); all other markup is reduced to its text.
 
 ## Remembered state
 
 There is no config file. cbv remembers, per book, the last page, the reading-direction override and the
 "cover alone" setting in `$XDG_STATE_HOME/cbv/books.json` (normally `~/.local/state/cbv/books.json`),
-for up to 1000 books. Books with a Calibre sidecar are identified by their Calibre uuid, so the entry
-survives moving or renaming the file; others by their path. It does not remember the window size,
-fullscreen state or which book was open last.
+for up to 1000 books, identified by their path. It does not remember the window size, fullscreen
+state or which book was open last.
 
 ## Calibre
 

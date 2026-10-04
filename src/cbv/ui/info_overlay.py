@@ -5,7 +5,7 @@ from __future__ import annotations
 import html
 from pathlib import Path
 
-from PyQt6.QtCore import QEvent, QObject, Qt, QUrl
+from PyQt6.QtCore import QEvent, QObject, Qt
 from PyQt6.QtWidgets import QTextBrowser, QWidget
 
 from ..core.book import Book
@@ -65,9 +65,6 @@ def info_html(book: Book) -> str:
         "<style>td{padding:3px 12px 3px 0} a{color:#8ec5ff;text-decoration:none}"
         " p{margin:0 0 6px 0} ul,ol{margin:0 0 6px 0} blockquote{margin:0 0 6px 18px}</style>"
     ]
-    header = ""
-    if meta.cover_path and Path(meta.cover_path).is_file():
-        header = f'<td valign="top" width="190"><img src="{QUrl.fromLocalFile(meta.cover_path).toString()}" width="170"></td>'
     def cell(label: str, value: str) -> str:
         if label == "Description":  # already reduced to safe formatting tags
             return meta.description_html or plain_to_html(value)
@@ -78,7 +75,7 @@ def info_html(book: Book) -> str:
         f"<td>{cell(label, value)}</td></tr>"
         for label, value in info_rows(meta, book.path, book.count)
     )
-    parts.append(f'<table><tr>{header}<td valign="top"><table>{rows}</table></td></tr></table>')
+    parts.append(f"<table>{rows}</table>")
     if meta.bookmarks:
         parts.append('<h3 style="color:#9a9a9a">Contents</h3><table>')
         for info in meta.bookmarks:
