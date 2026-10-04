@@ -94,17 +94,17 @@ so fine detail is crisp.
   shorter side. There is no separate size setting.
 - `Esc` or a left click closes it (the click does nothing else). Turning a page also closes it.
 
-**Information screen** (`PgUp`). Title, series, authors, credits,
+**Information screen** (`PgUp` or `I`). Title, series, authors, credits,
 date, publisher, language, tags, page count, description, file name and folder. If the book has
 ComicInfo bookmarks, a *Contents* list follows; click an entry to jump to that page. Any key other than
-`PgUp`/`PgDn`, or a left click outside the links, returns to the page. The mouse wheel scrolls long text.
+`PgUp`/`PgDn`/`I`/`G`, or a left click outside the links, returns to the page. The mouse wheel scrolls long text.
 
-**Gallery** (`PgDn`). Every page as a thumbnail, filling the window (thumbnails appear as they are
+**Gallery** (`PgDn` or `G`). Every page as a thumbnail, filling the window (thumbnails appear as they are
 made). The highlight starts on the current page and moves with `Space`, `Shift+Space`, `Backspace`,
 `←`, `→`, `↑`, `↓` (a row), `Home`, `End`. `Enter` or a click opens that page; `Esc` closes the
 gallery and stays on the current page. The mouse wheel scrolls one row of thumbnails per notch. The grid always runs left to right, also for right-to-left books.
 
-`PgUp` and `PgDn` also switch directly from one screen to the other; pressing the same key again closes it.
+`PgUp`/`I` and `PgDn`/`G` also switch directly from one screen to the other; pressing the same key again closes it.
 
 ## Metadata
 

@@ -54,7 +54,7 @@ missing. There is no linter configured.
   misplaced captions for pages of different sizes. Thumbnails are bottom-aligned in a fixed box; the
   wheel scrolls whole rows.
 - **Shortcuts are `QAction`s** with window scope. While an overlay is open, the navigation actions are
-  disabled so keys reach it; the Info overlay disables *all* actions except `PgUp`/`PgDn` so that any
+  disabled so keys reach it; the Info overlay disables *all* actions except the info/gallery ones (`PgUp`/`I`, `PgDn`/`G`) so that any
   other key closes it (`Overlay.captures_all_keys`).
 - **Pointer visibility drives the fullscreen page indicator** (`_update_hud`); overlays and the bubble
   reset or hide the cursor explicitly. Overlays get their own arrow cursor.

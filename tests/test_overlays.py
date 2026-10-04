@@ -343,3 +343,18 @@ def test_gallery_wheel_snaps_to_rows_and_accumulates_touchpad_deltas(qapp, viewe
         scroll_wheel(view, -40)  # three small touchpad ticks make one notch
     assert bar.value() == row
 
+
+def test_i_and_g_work_like_pgup_and_pgdn(qapp, viewer, book6):  # noqa: F811
+    open_and_show(qapp, viewer, book6, 900, 700)
+    QTest.keyClick(viewer, Qt.Key.Key_I)
+    assert isinstance(viewer._overlay, InfoOverlay)
+    QTest.keyClick(viewer._overlay, Qt.Key.Key_G)  # switches straight to the gallery
+    assert isinstance(viewer._overlay, Gallery)
+    QTest.keyClick(viewer._overlay, Qt.Key.Key_I)  # ...and back
+    assert isinstance(viewer._overlay, InfoOverlay)
+    QTest.keyClick(viewer._overlay, Qt.Key.Key_I)  # same key closes
+    assert viewer._overlay is None
+    QTest.keyClick(viewer, Qt.Key.Key_G)
+    assert isinstance(viewer._overlay, Gallery)
+    QTest.keyClick(viewer._overlay, Qt.Key.Key_G)
+    assert viewer._overlay is None and viewer.page == 0
